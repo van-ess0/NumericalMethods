@@ -61,7 +61,6 @@ def one_dimension_optimization(func, a, b, eps):
 
 
 def fastest_gradient_descent(func, start=None):
-    # [  3.63797878e-10  -7.27595757e-10   1.09139364e-09]
     if start is None:
         start = np.array([-10465, -1065, 10000])
     gr = grad_fun(start)
@@ -77,5 +76,21 @@ def fastest_gradient_descent(func, start=None):
     print('norm:', np.linalg.norm(start - end))
     return end if (np.linalg.norm(start - end) < eps) else fastest_gradient_descent(func, end)
 
+def fastest_coordinate_descent(func, start=None, coord=0):
+    if start is None:
+        start = np.array([-10465, -1065, 10000])
+    gr = np.eye(3)[coord]
+    # print(gr)
+    a = one_dimension_optimization(
+        lambda a: func(start - gr.dot(a)),
+        -50., 50.,
+        eps / 100,
+    )
+    # a = minimize(lambda a: func(start - gr.dot(a)), 0, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+    end = start - gr.dot(a)
+    # print(end)
+    print('norm:', np.linalg.norm(start - end))
+    return end if (np.linalg.norm(start - end) < eps) else fastest_coordinate_descent(func, end, (coord + 1) % 3)
 
-print(fastest_gradient_descent(function))
+
+print(fastest_coordinate_descent(function))
